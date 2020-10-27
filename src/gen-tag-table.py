@@ -956,6 +956,11 @@ for initial, group in itertools.groupby ((lt_tags for lt_tags in [
 		key=lambda lt_tags: lt_tags[0].get_group ()):
 	complex_tags[initial] += group
 
+for tricky_ot_tag in filter(lambda tag: re.match('[A-Z]{3}$', tag), ot.names):
+	possible_bcp_47_tag = tricky_ot_tag.lower ()
+	if possible_bcp_47_tag in bcp_47.names and not ot.from_bcp_47[possible_bcp_47_tag]:
+		complex_tags[possible_bcp_47_tag[0]].append ((LanguageTag (possible_bcp_47_tag), []))
+
 for initial, items in sorted (complex_tags.items ()):
 	if initial != 'und':
 		continue
@@ -998,7 +1003,9 @@ for initial, items in sorted (complex_tags.items ()):
 		if lt.grandfathered:
 			print ('0 == strcmp (&lang_str[1], "%s")' % lt.language[1:], end='')
 		else:
-			string_literal = lt.language[1:] + '-'
+			string_literal = lt.language[1:]
+			if tags:
+				string_literal += '-'
 			if lt.script:
 				string_literal += lt.script
 				lt.script = None
@@ -1020,7 +1027,7 @@ for initial, items in sorted (complex_tags.items ()):
 			write ('      tags[0] = %s;  /* %s */' % (hb_tag (tags[0]), ot.names[tags[0]]))
 			print ()
 			print ('      *count = 1;')
-		else:
+		elif tags:
 			print ('      unsigned int i;')
 			print ('      hb_tag_t possible_tags[] = {')
 			for tag in tags:
@@ -1030,6 +1037,10 @@ for initial, items in sorted (complex_tags.items ()):
 			print ('      for (i = 0; i < %s && i < *count; i++)' % len (tags))
 			print ('\ttags[i] = possible_tags[i];')
 			print ('      *count = i;')
+		else:
+			write (f'      /* != {ot.names[lt.language.upper ()]} */')
+			print ()
+			print ('      *count = 0;')
 		print ('      return true;')
 		print ('    }')
 	print ('    break;')

@@ -1223,6 +1223,141 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       *count = 1;
       return true;
     }
+    if (lang_matches (&lang_str[1], "ba"))
+    {
+      /* Abé */
+      /* != Abaza */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "fk"))
+    {
+      /* Nanubae */
+      /* != Afrikaans */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "gw"))
+    {
+      /* Kahua */
+      /* != Agaw */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ri"))
+    {
+      /* Arikara */
+      /* != Aari */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rk"))
+    {
+      /* Arikapú */
+      /* != Rakhine */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'b':
+    if (lang_matches (&lang_str[1], "ag"))
+    {
+      /* Tuki */
+      /* != Baghelkhandi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "au"))
+    {
+      /* Bada (Nigeria) */
+      /* != Baulé */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "br"))
+    {
+      /* Girawa */
+      /* != Berber */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ch"))
+    {
+      /* Bariai */
+      /* != Bench */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "il"))
+    {
+      /* Bile */
+      /* != Bilen */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "kf"))
+    {
+      /* Beeke */
+      /* != Blackfoot */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "li"))
+    {
+      /* Bolia */
+      /* != Baluchi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "lt"))
+    {
+      /* Tai Dam */
+      /* != Balti */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "mb"))
+    {
+      /* Bembe */
+      /* != Bambara (Bamanankan) */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ml"))
+    {
+      /* Bomboli */
+      /* != Bamileke */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ri"))
+    {
+      /* Mokpwe */
+      /* != Braj Bhasha */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rm"))
+    {
+      /* Barambu */
+      /* != Burmese */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sh"))
+    {
+      /* Kati */
+      /* != Bashkir */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ti"))
+    {
+      /* Burate */
+      /* != Beti */
+      *count = 0;
+      return true;
+    }
     break;
   case 'c':
     if (lang_matches (&lang_str[1], "do-hant-hk"))
@@ -1641,6 +1776,117 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       *count = 1;
       return true;
     }
+    if (lang_matches (&lang_str[1], "hg"))
+    {
+      /* Chagatai */
+      /* != Chaha Gurage */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "hh"))
+    {
+      /* Chinook */
+      /* != Chattisgarhi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rr"))
+    {
+      /* Carolina Algonquian */
+      /* != Carrier */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rt"))
+    {
+      /* Iyojwa'ja Chorote */
+      /* != Crimean Tatar */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sl"))
+    {
+      /* Chinese Sign Language */
+      /* != Church Slavonic */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'd':
+    if (lang_matches (&lang_str[1], "cr"))
+    {
+      /* Negerhollands */
+      /* != Woods Cree */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "hv"))
+    {
+      /* Dehu */
+      /* != Divehi (Dhivehi, Maldivian) (deprecated) */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "nk"))
+    {
+      /* Dengka */
+      /* != Dinka */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ri"))
+    {
+      /* C'Lela */
+      /* != Dari */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "un"))
+    {
+      /* Dusun Deyah */
+      /* != Dungan */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "zn"))
+    {
+      /* Dzando */
+      /* != Dzongkha */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'e':
+    if (lang_matches (&lang_str[1], "cr"))
+    {
+      /* Eteocretan */
+      /* != Eastern Cree */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "uq"))
+    {
+      /* Basque (family) [family] */
+      /* != Basque */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'f':
+    if (lang_matches (&lang_str[1], "ar"))
+    {
+      /* Fataleka */
+      /* != Persian */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "os"))
+    {
+      /* Siraya */
+      /* != Faroese */
+      *count = 0;
+      return true;
+    }
     break;
   case 'g':
     if (lang_matches (&lang_str[1], "an-hant-hk"))
@@ -1700,6 +1946,62 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       /* Gan Chinese; Taiwan, Province of China */
       tags[0] = HB_TAG('Z','H','T',' ');  /* Chinese Traditional */
       *count = 1;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ad"))
+    {
+      /* Gaddang */
+      /* != Ga */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ae"))
+    {
+      /* Guarequena */
+      /* != Scottish Gaelic (Gaelic) */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "al"))
+    {
+      /* Galolen */
+      /* != Galician */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ar"))
+    {
+      /* Galeya */
+      /* != Garshuni */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "aw"))
+    {
+      /* Nobonob */
+      /* != Garhwali */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "mz"))
+    {
+      /* Mgbolizhia */
+      /* != Gumuz */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ro"))
+    {
+      /* Groma */
+      /* != Garo */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ua"))
+    {
+      /* Shiki */
+      /* != Guarani */
+      *count = 0;
       return true;
     }
     break;
@@ -1808,6 +2110,27 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       *count = 1;
       return true;
     }
+    if (lang_matches (&lang_str[1], "ai"))
+    {
+      /* Haida [macrolanguage] */
+      /* != Haitian (Haitian Creole) */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "al"))
+    {
+      /* Halang */
+      /* != Halam (Falam Chin) */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "bn"))
+    {
+      /* Heiban */
+      /* != Hammer-Banna */
+      *count = 0;
+      return true;
+    }
     break;
   case 'i':
     if (0 == strcmp (&lang_str[1], "-navajo"))
@@ -1837,6 +2160,241 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       *count = 1;
       return true;
     }
+    if (lang_matches (&lang_str[1], "ri"))
+    {
+      /* Rigwe */
+      /* != Irish */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sm"))
+    {
+      /* Masimasi */
+      /* != Inari Sami */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'j':
+    if (lang_matches (&lang_str[1], "an"))
+    {
+      /* Jandai */
+      /* != Japanese */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ii"))
+    {
+      /* Jiiddu */
+      /* != Yiddish */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ud"))
+    {
+      /* Worodougou */
+      /* != Ladino */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ul"))
+    {
+      /* Jirel */
+      /* != Jula */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'k':
+    if (lang_matches (&lang_str[1], "ac"))
+    {
+      /* Kachin */
+      /* != Kachchi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "eb"))
+    {
+      /* Kélé */
+      /* != Kebena */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ge"))
+    {
+      /* Komering */
+      /* != Khutsuri Georgian */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "hs"))
+    {
+      /* Kasua */
+      /* != Khanty-Shurishkar */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "hv"))
+    {
+      /* Khvarshi */
+      /* != Khanty-Vakhi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "is"))
+    {
+      /* Kis */
+      /* != Kisii */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "kn"))
+    {
+      /* Kon Keu */
+      /* != Kokni */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "lm"))
+    {
+      /* Migum */
+      /* != Kalmyk */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "mn"))
+    {
+      /* Awtuw */
+      /* != Kumaoni */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "mo"))
+    {
+      /* Kwoma */
+      /* != Komo */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ms"))
+    {
+      /* Kamasau */
+      /* != Komso */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "nr"))
+    {
+      /* Kaningra */
+      /* != Kanuri */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "od"))
+    {
+      /* Kodi */
+      /* != Kodagu */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "oh"))
+    {
+      /* Koyo */
+      /* != Korean Old Hangul */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "op"))
+    {
+      /* Waube */
+      /* != Komi-Permyak */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "oz"))
+    {
+      /* Korak */
+      /* != Komi-Zyrian */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "pl"))
+    {
+      /* Kpala */
+      /* != Kpelle */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rk"))
+    {
+      /* Kerek */
+      /* != Karakalpak */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rm"))
+    {
+      /* Krim (retired code) */
+      /* != Karaim */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rn"))
+    {
+      /* Sapo */
+      /* != Karen */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "si"))
+    {
+      /* Krisa */
+      /* != Khasi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sm"))
+    {
+      /* Kumba */
+      /* != Kildin Sami */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ui"))
+    {
+      /* Kuikúro-Kalapálo */
+      /* != Kui */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ul"))
+    {
+      /* Kulere */
+      /* != Kulvi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "uy"))
+    {
+      /* Kuuku-Ya'u */
+      /* != Kuy */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "yk"))
+    {
+      /* Kamayo */
+      /* != Koryak */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "hn"))
+    {
+      /* Khandesi */
+      /* != Khamti Shan (Microsoft fonts) */
+      *count = 0;
+      return true;
+    }
     break;
   case 'l':
     if (lang_matches (&lang_str[1], "zh-hans"))
@@ -1844,6 +2402,76 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       /* Literary Chinese */
       tags[0] = HB_TAG('Z','H','S',' ');  /* Chinese Simplified */
       *count = 1;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ah"))
+    {
+      /* Lahnda [macrolanguage] */
+      /* != Lahuli */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ak"))
+    {
+      /* Laka (Nigeria) */
+      /* != Lak */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "am"))
+    {
+      /* Lamba */
+      /* != Lambani */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "az"))
+    {
+      /* Aribwatsa */
+      /* != Laz */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "dk"))
+    {
+      /* Leelau */
+      /* != Ladakhi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ma"))
+    {
+      /* East Limba */
+      /* != Low Mari */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "mb"))
+    {
+      /* Merei */
+      /* != Limbu */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "mw"))
+    {
+      /* Lake Miwok */
+      /* != Lomwe */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "th"))
+    {
+      /* Thur */
+      /* != Lithuanian */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "vi"))
+    {
+      /* Lavi */
+      /* != Latvian */
+      *count = 0;
       return true;
     }
     break;
@@ -1898,6 +2526,146 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       /* Min Bei Chinese; Taiwan, Province of China */
       tags[0] = HB_TAG('Z','H','T',' ');  /* Chinese Traditional */
       *count = 1;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "aj"))
+    {
+      /* Jalapa De Díaz Mazatec */
+      /* != Majang */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ap"))
+    {
+      /* Austronesian [family] */
+      /* != Mapudungun */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "aw"))
+    {
+      /* Mampruli */
+      /* != Marwari */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "bn"))
+    {
+      /* Macaguán */
+      /* != Mbundu */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ch"))
+    {
+      /* Maquiritari */
+      /* != Manchu */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "cr"))
+    {
+      /* Menya */
+      /* != Moose Cree */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "de"))
+    {
+      /* Maba (Chad) */
+      /* != Mende */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "iz"))
+    {
+      /* Coatzospan Mixtec */
+      /* != Mizo */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "kr"))
+    {
+      /* Malas */
+      /* != Makasar */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "le"))
+    {
+      /* Manambu */
+      /* != Male */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ln"))
+    {
+      /* Malango */
+      /* != Malinke */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "lr"))
+    {
+      /* Vame */
+      /* != Malayalam Reformed */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "nd"))
+    {
+      /* Mondé */
+      /* != Mandinka */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ng"))
+    {
+      /* Eastern Mnong */
+      /* != Mongolian */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "nx"))
+    {
+      /* Manikion */
+      /* != Manx */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ok"))
+    {
+      /* Morori */
+      /* != Moksha */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "or"))
+    {
+      /* Moro */
+      /* != Moroccan */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "th"))
+    {
+      /* Munggui */
+      /* != Maithili */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ts"))
+    {
+      /* Yora */
+      /* != Maltese */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "un"))
+    {
+      /* Munda [family] */
+      /* != Mundari */
+      *count = 0;
       return true;
     }
     break;
@@ -1974,6 +2742,129 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       *count = i;
       return true;
     }
+    if (lang_matches (&lang_str[1], "as"))
+    {
+      /* Naasioi */
+      /* != Naskapi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "cr"))
+    {
+      /* Ncane */
+      /* != N-Cree */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "db"))
+    {
+      /* Kenswei Nsei */
+      /* != Ndebele */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "dg"))
+    {
+      /* Ndengereko */
+      /* != Ndonga */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "gr"))
+    {
+      /* Engdewu */
+      /* != Nagari */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "hc"))
+    {
+      /* Tabasco Nahuatl */
+      /* != Norway House Cree */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "is"))
+    {
+      /* Nimi */
+      /* != Nisi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ko"))
+    {
+      /* Nkonya */
+      /* != N’Ko */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sm"))
+    {
+      /* Sumi Naga */
+      /* != Northern Sami */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "to"))
+    {
+      /* Ntomba */
+      /* != Esperanto */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'o':
+    if (lang_matches (&lang_str[1], "ro"))
+    {
+      /* Orokolo */
+      /* != Oromo */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'p':
+    if (lang_matches (&lang_str[1], "aa"))
+    {
+      /* Papuan [family] */
+      /* != Palestinian Aramaic */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "al"))
+    {
+      /* Pahlavi */
+      /* != Pali */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "as"))
+    {
+      /* Papasena */
+      /* != Pashto */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "il"))
+    {
+      /* Yom */
+      /* != Filipino */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "lg"))
+    {
+      /* Pilagá */
+      /* != Palaung */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "lk"))
+    {
+      /* Kohistani Shina */
+      /* != Polish */
+      *count = 0;
+      return true;
+    }
     break;
   case 'r':
     if (0 == strncmp (&lang_str[1], "o-", 2)
@@ -1982,6 +2873,250 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       /* Romanian; Moldova */
       tags[0] = HB_TAG('M','O','L',' ');  /* Moldavian */
       *count = 1;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ms"))
+    {
+      /* Romanian Sign Language */
+      /* != Romansh */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 's':
+    if (lang_matches (&lang_str[1], "ad"))
+    {
+      /* Sandawe */
+      /* != Sadri */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ay"))
+    {
+      /* Saya */
+      /* != Sayisi */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "go"))
+    {
+      /* Songa (retired code) */
+      /* != Sango */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ib"))
+    {
+      /* Sebop */
+      /* != Sibe */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ig"))
+    {
+      /* Paasaal */
+      /* != Silte Gurage */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ks"))
+    {
+      /* Maia */
+      /* != Skolt Sami */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ky"))
+    {
+      /* Sikaiana */
+      /* != Slovak */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "la"))
+    {
+      /* Slavic [family] */
+      /* != Slavey */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ml"))
+    {
+      /* Central Sama */
+      /* != Somali */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "nh"))
+    {
+      /* Shinabo (retired code) */
+      /* != Sinhala (Sinhalese) */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "og"))
+    {
+      /* Sogdian */
+      /* != Sodo Gurage */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rb"))
+    {
+      /* Sora */
+      /* != Serbian */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rk"))
+    {
+      /* Serudung Murut */
+      /* != Saraiki */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sl"))
+    {
+      /* Western Sisaala */
+      /* != South Slavey */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sm"))
+    {
+      /* Semnam */
+      /* != Southern Sami */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ur"))
+    {
+      /* Mwaghavul */
+      /* != Suri */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ve"))
+    {
+      /* Serili */
+      /* != Swedish */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "wk"))
+    {
+      /* Malawi Sena */
+      /* != Swahili */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 't':
+    if (lang_matches (&lang_str[1], "aj"))
+    {
+      /* Eastern Tamang */
+      /* != Tajiki */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "gn"))
+    {
+      /* Tandaganon */
+      /* != Tongan */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "gr"))
+    {
+      /* Tareng */
+      /* != Tigre */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "gy"))
+    {
+      /* Togoyo */
+      /* != Tigrinya */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "km"))
+    {
+      /* Takelma */
+      /* != Turkmen */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "mn"))
+    {
+      /* Taman (Indonesia) */
+      /* != Temne */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "na"))
+    {
+      /* Tacana */
+      /* != Tswana */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ne"))
+    {
+      /* Tinoc Kallahan (retired code) */
+      /* != Tundra Nenets */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ng"))
+    {
+      /* Tobanga */
+      /* != Tonga */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "rk"))
+    {
+      /* Turkic [family] */
+      /* != Turkish */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "sg"))
+    {
+      /* Tausug */
+      /* != Tsonga */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ua"))
+    {
+      /* Wiarumus */
+      /* != Turoyo Aramaic */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ul"))
+    {
+      /* Tula */
+      /* != Tumbuka */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "uv"))
+    {
+      /* Turkana */
+      /* != Tuvin */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'v':
+    if (lang_matches (&lang_str[1], "it"))
+    {
+      /* Viti */
+      /* != Vietnamese */
+      *count = 0;
       return true;
     }
     break;
@@ -2038,6 +3173,22 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       *count = 1;
       return true;
     }
+    if (lang_matches (&lang_str[1], "ag"))
+    {
+      /* Wa'ema */
+      /* != Wagdi */
+      *count = 0;
+      return true;
+    }
+    break;
+  case 'x':
+    if (lang_matches (&lang_str[1], "bd"))
+    {
+      /* Bindal */
+      /* != Lü */
+      *count = 0;
+      return true;
+    }
     break;
   case 'y':
     if (lang_matches (&lang_str[1], "ue-hans"))
@@ -2045,6 +3196,27 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       /* Yue Chinese */
       tags[0] = HB_TAG('Z','H','S',' ');  /* Chinese Simplified */
       *count = 1;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ak"))
+    {
+      /* Yakama */
+      /* != Sakha */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "ba"))
+    {
+      /* Yala */
+      /* != Yoruba */
+      *count = 0;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "im"))
+    {
+      /* Yimchungru Naga */
+      /* != Yi Modern */
+      *count = 0;
       return true;
     }
     break;
@@ -2113,6 +3285,13 @@ hb_ot_tags_from_complex_language (const char   *lang_str,
       /* Chinese [macrolanguage]; Taiwan, Province of China */
       tags[0] = HB_TAG('Z','H','T',' ');  /* Chinese Traditional */
       *count = 1;
+      return true;
+    }
+    if (lang_matches (&lang_str[1], "nd"))
+    {
+      /* Zande [family] */
+      /* != Zande */
+      *count = 0;
       return true;
     }
     break;
