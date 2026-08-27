@@ -209,6 +209,7 @@ set (subset_project_sources
      ${PROJECT_SOURCE_DIR}/src/hb-subset.hh
      ${PROJECT_SOURCE_DIR}/src/hb-repacker.hh
      ${PROJECT_SOURCE_DIR}/src/graph/graph.hh
+     ${PROJECT_SOURCE_DIR}/src/graph/result.hh
      ${PROJECT_SOURCE_DIR}/src/graph/gsubgpos-graph.hh
      ${PROJECT_SOURCE_DIR}/src/graph/gsubgpos-context.hh
      ${PROJECT_SOURCE_DIR}/src/graph/gsubgpos-context.cc

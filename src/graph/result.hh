@@ -1,0 +1,591 @@
+/*
+ * Copyright © 2025  Google, Inc.
+ *
+ *  This is part of HarfBuzz, a text shaping library.
+ *
+ * Permission is hereby granted, without written agreement and without
+ * license or royalty fees, to use, copy, modify, and distribute this
+ * software and its documentation for any purpose, provided that the
+ * above copyright notice and the following two paragraphs appear in
+ * all copies of this software.
+ *
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
+ * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
+ * IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ * THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
+ * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+ * ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
+ * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *
+ * Google Author(s): Garret Rieger
+ */
+
+#ifndef GRAPH_RESULT_HH
+#define GRAPH_RESULT_HH
+
+#include "../hb.hh"
+#include "../hb-meta.hh"
+
+#include <new>
+#include <utility>
+
+namespace graph {
+
+enum GraphError {
+  ALLOCATION,
+  INVARIANT,
+  OVERFLOW,
+  LIMIT_EXCEEDED,
+};
+
+static inline const char* to_string (GraphError err)
+{
+  switch (err)
+  {
+    case ALLOCATION: return "ALLOCATION";
+    case INVARIANT: return "INVARIANT";
+    case OVERFLOW: return "OVERFLOW";
+    case LIMIT_EXCEEDED: return "LIMIT_EXCEEDED";
+    default: return "UNKNOWN";
+  }
+}
+
+template <typename T>
+struct ok_t
+{
+  T value;
+};
+
+template <>
+struct ok_t<void> {};
+
+template <typename E>
+struct err_t
+{
+  E error;
+
+  constexpr err_t (E e) : error (e) {}
+
+  constexpr operator E () const { return error; }
+  constexpr bool operator == (E other) const { return error == other; }
+  constexpr bool operator != (E other) const { return error != other; }
+  constexpr bool operator == (const err_t& other) const { return error == other.error; }
+  constexpr bool operator != (const err_t& other) const { return error != other.error; }
+};
+
+template <typename T>
+static inline constexpr ok_t<hb_decay<T>> Ok (T&& v)
+{
+  return ok_t<hb_decay<T>>{std::forward<T> (v)};
+}
+
+static inline constexpr ok_t<void> Ok ()
+{
+  return ok_t<void>{};
+}
+
+template <typename E = GraphError>
+static inline constexpr err_t<hb_decay<E>> Err (E&& e)
+{
+  return err_t<hb_decay<E>>{std::forward<E> (e)};
+}
+
+template <typename T, typename E = GraphError>
+struct result_t
+{
+  private:
+  union
+  {
+    T val_;
+    E err_;
+  };
+  bool is_ok_;
+
+  template <typename, typename> friend struct result_t;
+
+  void destroy ()
+  {
+    if (is_ok_)
+      val_.~T ();
+    else
+      err_.~E ();
+  }
+
+  public:
+  ~result_t ()
+  {
+    destroy ();
+  }
+
+  result_t () = delete;
+
+  result_t (const result_t& o) : is_ok_ (o.is_ok_)
+  {
+    if (is_ok_)
+      new (std::addressof (val_)) T (o.val_);
+    else
+      new (std::addressof (err_)) E (o.err_);
+  }
+
+  result_t (result_t&& o) noexcept (std::is_nothrow_move_constructible<T>::value &&
+                                     std::is_nothrow_move_constructible<E>::value)
+      : is_ok_ (o.is_ok_)
+  {
+    if (is_ok_)
+      new (std::addressof (val_)) T (std::move (o.val_));
+    else
+      new (std::addressof (err_)) E (std::move (o.err_));
+  }
+
+  template <typename U,
+            hb_enable_if ((std::is_constructible<T, const U&>::value &&
+                           !hb_is_same (T, U)))>
+  result_t (const result_t<U, E>& o) : is_ok_ (o.is_ok_)
+  {
+    if (is_ok_)
+      new (std::addressof (val_)) T (o.val_);
+    else
+      new (std::addressof (err_)) E (o.err_);
+  }
+
+  template <typename U,
+            hb_enable_if ((std::is_constructible<T, U>::value &&
+                           !hb_is_same (T, U)))>
+  result_t (result_t<U, E>&& o) : is_ok_ (o.is_ok_)
+  {
+    if (is_ok_)
+      new (std::addressof (val_)) T (std::move (o.val_));
+    else
+      new (std::addressof (err_)) E (std::move (o.err_));
+  }
+
+  result_t& operator = (const result_t& o)
+  {
+    if (this == &o) return *this;
+    if (is_ok_ && o.is_ok_)
+    {
+      val_ = o.val_;
+    }
+    else if (!is_ok_ && !o.is_ok_)
+    {
+      err_ = o.err_;
+    }
+    else
+    {
+      destroy ();
+      is_ok_ = o.is_ok_;
+      if (is_ok_)
+        new (std::addressof (val_)) T (o.val_);
+      else
+        new (std::addressof (err_)) E (o.err_);
+    }
+    return *this;
+  }
+
+  result_t& operator = (result_t&& o) noexcept (std::is_nothrow_move_assignable<T>::value &&
+                                                std::is_nothrow_move_assignable<E>::value)
+  {
+    if (this == &o) return *this;
+    if (is_ok_ && o.is_ok_)
+    {
+      val_ = std::move (o.val_);
+    }
+    else if (!is_ok_ && !o.is_ok_)
+    {
+      err_ = std::move (o.err_);
+    }
+    else
+    {
+      destroy ();
+      is_ok_ = o.is_ok_;
+      if (is_ok_)
+        new (std::addressof (val_)) T (std::move (o.val_));
+      else
+        new (std::addressof (err_)) E (std::move (o.err_));
+    }
+    return *this;
+  }
+
+  // Construct from Ok tag
+  template <typename U = T,
+            hb_enable_if ((std::is_constructible<T, U>::value))>
+  result_t (ok_t<U>&& o) : is_ok_ (true)
+  {
+    new (std::addressof (val_)) T (std::move (o.value));
+  }
+
+  template <typename U = T,
+            hb_enable_if ((std::is_constructible<T, const U&>::value))>
+  result_t (const ok_t<U>& o) : is_ok_ (true)
+  {
+    new (std::addressof (val_)) T (o.value);
+  }
+
+  // Construct from Err tag
+  template <typename F = E,
+            hb_enable_if ((std::is_constructible<E, F>::value))>
+  result_t (err_t<F> e) : is_ok_ (false)
+  {
+    new (std::addressof (err_)) E (std::move (e.error));
+  }
+
+  // Construct directly from error E (when T != E)
+  template <typename Dummy = void,
+            hb_enable_if ((!hb_is_same (T, E) && hb_is_same (Dummy, void)))>
+  result_t (E e) : is_ok_ (false)
+  {
+    new (std::addressof (err_)) E (e);
+  }
+
+  // Converting constructor from value U
+  template <typename U = T,
+            hb_enable_if ((std::is_constructible<T, U>::value &&
+                           !hb_is_same (hb_decay<U>, result_t) &&
+                           !hb_is_same (hb_decay<U>, ok_t<T>) &&
+                           !hb_is_same (hb_decay<U>, err_t<E>) &&
+                           !hb_is_same (hb_decay<U>, E)))>
+  result_t (U&& v) : is_ok_ (true)
+  {
+    new (std::addressof (val_)) T (std::forward<U> (v));
+  }
+
+  static result_t ok (T v) { return result_t (Ok (std::move (v))); }
+  static result_t err (E e) { return result_t (Err (std::move (e))); }
+
+  bool is_ok () const { return is_ok_; }
+  bool is_err () const { return !is_ok_; }
+  explicit operator bool () const { return is_ok (); }
+
+  T& unwrap () & { assert (is_ok_); return val_; }
+  const T& unwrap () const & { assert (is_ok_); return val_; }
+  T unwrap () && { assert (is_ok_); return std::move (val_); }
+
+  T& get_ok () & { return unwrap (); }
+  const T& get_ok () const & { return unwrap (); }
+  T get_ok () && { return std::move (*this).unwrap (); }
+
+  template <typename U>
+  T unwrap_or (U&& default_value) const
+  {
+    if (is_ok_) return val_;
+    return std::forward<U> (default_value);
+  }
+
+  T& expect (const char* msg) &
+  {
+    if (unlikely (!is_ok_))
+    {
+      fprintf (stderr, "%s\n", msg);
+      abort ();
+    }
+    return val_;
+  }
+
+  const T& expect (const char* msg) const &
+  {
+    if (unlikely (!is_ok_))
+    {
+      fprintf (stderr, "%s\n", msg);
+      abort ();
+    }
+    return val_;
+  }
+
+  T expect (const char* msg) &&
+  {
+    if (unlikely (!is_ok_))
+    {
+      fprintf (stderr, "%s\n", msg);
+      abort ();
+    }
+    return std::move (val_);
+  }
+
+  const E& get_error () const & { assert (!is_ok_); return err_; }
+  E& get_error () & { assert (!is_ok_); return err_; }
+  E get_error () && { assert (!is_ok_); return std::move (err_); }
+
+  const E& error () const & { return get_error (); }
+  E& error () & { return get_error (); }
+  E error () && { return std::move (*this).get_error (); }
+
+  err_t<E> err () const & { return err_t<E> (get_error ()); }
+  err_t<E> err () && { return err_t<E> (std::move (*this).get_error ()); }
+
+  T& operator * () & { return unwrap (); }
+  const T& operator * () const & { return unwrap (); }
+  T operator * () && { return std::move (*this).unwrap (); }
+
+  T* operator -> () { return std::addressof (unwrap ()); }
+  const T* operator -> () const { return std::addressof (unwrap ()); }
+
+  bool operator == (const result_t& o) const
+  {
+    if (is_ok_ != o.is_ok_) return false;
+    if (is_ok_) return val_ == o.val_;
+    return err_ == o.err_;
+  }
+
+  bool operator != (const result_t& o) const
+  {
+    return !(*this == o);
+  }
+
+  template <typename U>
+  bool operator == (const ok_t<U>& o) const
+  {
+    return is_ok_ && val_ == o.value;
+  }
+
+  template <typename U>
+  bool operator != (const ok_t<U>& o) const
+  {
+    return !(*this == o);
+  }
+
+  template <typename F>
+  bool operator == (const err_t<F>& e) const
+  {
+    return !is_ok_ && err_ == e.error;
+  }
+
+  template <typename F>
+  bool operator != (const err_t<F>& e) const
+  {
+    return !(*this == e);
+  }
+
+  bool operator == (E e) const
+  {
+    return !is_ok_ && err_ == e;
+  }
+
+  bool operator != (E e) const
+  {
+    return is_ok_ || err_ != e;
+  }
+};
+
+// Partial specialization for void
+template <typename E>
+struct result_t<void, E>
+{
+  private:
+  union
+  {
+    E err_;
+  };
+  bool is_ok_;
+
+  template <typename, typename> friend struct result_t;
+
+  public:
+  ~result_t ()
+  {
+    if (!is_ok_)
+      err_.~E ();
+  }
+
+  result_t () : is_ok_ (true) {}
+  result_t (ok_t<void>) : is_ok_ (true) {}
+
+  result_t (const result_t& o) : is_ok_ (o.is_ok_)
+  {
+    if (!is_ok_)
+      new (std::addressof (err_)) E (o.err_);
+  }
+
+  result_t (result_t&& o) noexcept (std::is_nothrow_move_constructible<E>::value)
+      : is_ok_ (o.is_ok_)
+  {
+    if (!is_ok_)
+      new (std::addressof (err_)) E (std::move (o.err_));
+  }
+
+  result_t& operator = (const result_t& o)
+  {
+    if (this == &o) return *this;
+    if (!is_ok_ && !o.is_ok_)
+    {
+      err_ = o.err_;
+    }
+    else if (!is_ok_ && o.is_ok_)
+    {
+      err_.~E ();
+      is_ok_ = true;
+    }
+    else if (is_ok_ && !o.is_ok_)
+    {
+      new (std::addressof (err_)) E (o.err_);
+      is_ok_ = false;
+    }
+    return *this;
+  }
+
+  result_t& operator = (result_t&& o) noexcept (std::is_nothrow_move_assignable<E>::value)
+  {
+    if (this == &o) return *this;
+    if (!is_ok_ && !o.is_ok_)
+    {
+      err_ = std::move (o.err_);
+    }
+    else if (!is_ok_ && o.is_ok_)
+    {
+      err_.~E ();
+      is_ok_ = true;
+    }
+    else if (is_ok_ && !o.is_ok_)
+    {
+      new (std::addressof (err_)) E (std::move (o.err_));
+      is_ok_ = false;
+    }
+    return *this;
+  }
+
+  template <typename F = E,
+            hb_enable_if ((std::is_constructible<E, F>::value))>
+  result_t (err_t<F> e) : is_ok_ (false)
+  {
+    new (std::addressof (err_)) E (std::move (e.error));
+  }
+
+  // Construct directly from error E
+  template <typename Dummy = void,
+            hb_enable_if ((hb_is_same (Dummy, void)))>
+  result_t (E e) : is_ok_ (false)
+  {
+    new (std::addressof (err_)) E (e);
+  }
+
+  static result_t ok () { return result_t (); }
+  static result_t err (E e) { return result_t (Err (std::move (e))); }
+
+  bool is_ok () const { return is_ok_; }
+  bool is_err () const { return !is_ok_; }
+  explicit operator bool () const { return is_ok (); }
+
+  void unwrap () const { assert (is_ok_); }
+  void get_ok () const { unwrap (); }
+
+  void expect (const char* msg) const
+  {
+    if (unlikely (!is_ok_))
+    {
+      fprintf (stderr, "%s\n", msg);
+      abort ();
+    }
+  }
+
+  const E& get_error () const & { assert (!is_ok_); return err_; }
+  E& get_error () & { assert (!is_ok_); return err_; }
+  E get_error () && { assert (!is_ok_); return std::move (err_); }
+
+  const E& error () const & { return get_error (); }
+  E& error () & { return get_error (); }
+  E error () && { return std::move (*this).get_error (); }
+
+  err_t<E> err () const & { return err_t<E> (get_error ()); }
+  err_t<E> err () && { return err_t<E> (std::move (*this).get_error ()); }
+
+  bool operator == (const result_t& o) const
+  {
+    if (is_ok_ != o.is_ok_) return false;
+    if (!is_ok_) return err_ == o.err_;
+    return true;
+  }
+
+  bool operator != (const result_t& o) const
+  {
+    return !(*this == o);
+  }
+
+  bool operator == (const ok_t<void>&) const
+  {
+    return is_ok_;
+  }
+
+  bool operator != (const ok_t<void>&) const
+  {
+    return !is_ok_;
+  }
+
+  template <typename F>
+  bool operator == (const err_t<F>& e) const
+  {
+    return !is_ok_ && err_ == e.error;
+  }
+
+  template <typename F>
+  bool operator != (const err_t<F>& e) const
+  {
+    return is_ok_ || err_ != e.error;
+  }
+
+  bool operator == (E e) const
+  {
+    return !is_ok_ && err_ == e;
+  }
+
+  bool operator != (E e) const
+  {
+    return is_ok_ || err_ != e;
+  }
+};
+
+template <typename U, typename T, typename E>
+static inline bool operator == (const ok_t<U>& o, const result_t<T, E>& r)
+{
+  return r == o;
+}
+template <typename U, typename T, typename E>
+static inline bool operator != (const ok_t<U>& o, const result_t<T, E>& r)
+{
+  return r != o;
+}
+template <typename F, typename T, typename E>
+static inline bool operator == (const err_t<F>& e, const result_t<T, E>& r)
+{
+  return r == e;
+}
+template <typename F, typename T, typename E>
+static inline bool operator != (const err_t<F>& e, const result_t<T, E>& r)
+{
+  return r != e;
+}
+template <typename T, typename E>
+static inline bool operator == (E e, const result_t<T, E>& r)
+{
+  return r == e;
+}
+template <typename T, typename E>
+static inline bool operator != (E e, const result_t<T, E>& r)
+{
+  return r != e;
+}
+
+template <typename T, typename E = GraphError>
+using Result = result_t<T, E>;
+
+} // namespace graph
+
+#ifndef TRY
+#if defined(__GNUC__) || defined(__clang__)
+#define TRY(...) \
+  __extension__ ({ \
+    auto HB_PASTE (_hb_try_res_, __LINE__) = (__VA_ARGS__); \
+    if (unlikely (!HB_PASTE (_hb_try_res_, __LINE__).is_ok ())) \
+      return HB_PASTE (_hb_try_res_, __LINE__).err (); \
+    std::move (HB_PASTE (_hb_try_res_, __LINE__)).unwrap (); \
+  })
+#endif
+#endif
+
+#ifndef HB_TRY
+#define HB_TRY TRY
+#endif
+
+#endif /* GRAPH_RESULT_HH */
