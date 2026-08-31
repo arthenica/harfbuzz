@@ -54,36 +54,36 @@ struct resource_t
   bool operator == (const resource_t& o) const { return id == o.id; }
 };
 
-static result_t<int> returns_ok (int v)
+static hb_result_t<int> returns_ok (int v)
 {
   return v;
 }
 
-static result_t<int> returns_err (error_code_t e)
+static hb_result_t<int> returns_err (error_code_t e)
 {
   return e;
 }
 
-static result_t<int> try_callee (bool fail, int v, error_code_t e = ALLOCATION)
+static hb_result_t<int> try_callee (bool fail, int v, error_code_t e = ALLOCATION)
 {
   if (fail) return e;
   return v;
 }
 
-static result_t<int> try_caller (bool fail1, bool fail2)
+static hb_result_t<int> try_caller (bool fail1, bool fail2)
 {
   int index = TRY (try_callee (fail1, 10, ALLOCATION));
   int index2 = TRY (try_callee (fail2, 20, OVERFLOW));
   return index + index2;
 }
 
-static result_t<void> try_caller_void (bool fail)
+static hb_result_t<void> try_caller_void (bool fail)
 {
   TRY (try_callee (fail, 5, LIMIT_EXCEEDED));
   return Ok ();
 }
 
-static result_t<float> try_caller_type_change (bool fail)
+static hb_result_t<float> try_caller_type_change (bool fail)
 {
   int index = TRY (try_callee (fail, 100, INVARIANT));
   return (float) index * 1.5f;
@@ -91,7 +91,7 @@ static result_t<float> try_caller_type_change (bool fail)
 
 static void test_ok_basic ()
 {
-  result_t<int> r = returns_ok (42);
+  hb_result_t<int> r = returns_ok (42);
   hb_always_assert (r.is_ok ());
   hb_always_assert (!r.is_err ());
   hb_always_assert ((bool) r);
@@ -106,7 +106,7 @@ static void test_ok_basic ()
 
 static void test_err_basic ()
 {
-  result_t<int> r = returns_err (ALLOCATION);
+  hb_result_t<int> r = returns_err (ALLOCATION);
   hb_always_assert (!r.is_ok ());
   hb_always_assert (r.is_err ());
   hb_always_assert (!r);
@@ -122,19 +122,19 @@ static void test_err_basic ()
 
 static void test_explicit_ok_err ()
 {
-  result_t<unsigned> r1 = Ok (100u);
+  hb_result_t<unsigned> r1 = Ok (100u);
   hb_always_assert (r1.is_ok ());
   hb_always_assert (r1.unwrap () == 100u);
 
-  result_t<unsigned> r2 = Err (LIMIT_EXCEEDED);
+  hb_result_t<unsigned> r2 = Err (LIMIT_EXCEEDED);
   hb_always_assert (r2.is_err ());
   hb_always_assert (r2.error () == LIMIT_EXCEEDED);
 
-  result_t<unsigned> r3 = result_t<unsigned>::ok (200u);
+  hb_result_t<unsigned> r3 = hb_result_t<unsigned>::ok (200u);
   hb_always_assert (r3.is_ok ());
   hb_always_assert (r3.unwrap () == 200u);
 
-  result_t<unsigned> r4 = result_t<unsigned>::err (INVARIANT);
+  hb_result_t<unsigned> r4 = hb_result_t<unsigned>::err (INVARIANT);
   hb_always_assert (r4.is_err ());
   hb_always_assert (r4.error () == INVARIANT);
 }
@@ -142,7 +142,7 @@ static void test_explicit_ok_err ()
 static void test_pointers ()
 {
   int x = 123;
-  result_t<int*> r = &x;
+  hb_result_t<int*> r = &x;
   hb_always_assert (r.is_ok ());
   hb_always_assert (*r == &x);
   hb_always_assert (**r == 123);
@@ -152,14 +152,14 @@ static void test_pointers ()
 
 static void test_void ()
 {
-  result_t<void> r1 = Ok ();
+  hb_result_t<void> r1 = Ok ();
   hb_always_assert (r1.is_ok ());
   hb_always_assert (!r1.is_err ());
   hb_always_assert ((bool) r1);
   r1.unwrap ();
   hb_always_assert (r1 == Ok ());
 
-  result_t<void> r2 = Err (OVERFLOW);
+  hb_result_t<void> r2 = Err (OVERFLOW);
   hb_always_assert (!r2.is_ok ());
   hb_always_assert (r2.is_err ());
   hb_always_assert (!r2);
@@ -167,10 +167,10 @@ static void test_void ()
   hb_always_assert (r2 == OVERFLOW);
   hb_always_assert (r2 == Err (OVERFLOW));
 
-  result_t<void> r3 = result_t<void>::ok ();
+  hb_result_t<void> r3 = hb_result_t<void>::ok ();
   hb_always_assert (r3.is_ok ());
 
-  result_t<void> r4 = result_t<void>::err (ALLOCATION);
+  hb_result_t<void> r4 = hb_result_t<void>::err (ALLOCATION);
   hb_always_assert (r4.is_err ());
   hb_always_assert (r4.error () == ALLOCATION);
 }
@@ -180,24 +180,24 @@ static void test_resource_cleanup ()
   hb_always_assert (live_instances == 0);
 
   {
-    result_t<resource_t> r = resource_t (1);
+    hb_result_t<resource_t> r = resource_t (1);
     hb_always_assert (live_instances == 1);
     hb_always_assert (r.unwrap ().id == 1);
   }
   hb_always_assert (live_instances == 0);
 
   {
-    result_t<resource_t> r1 = resource_t (2);
+    hb_result_t<resource_t> r1 = resource_t (2);
     hb_always_assert (live_instances == 1);
-    result_t<resource_t> r2 = r1;
+    hb_result_t<resource_t> r2 = r1;
     hb_always_assert (live_instances == 2);
-    result_t<resource_t> r3 = std::move (r1);
+    hb_result_t<resource_t> r3 = std::move (r1);
     hb_always_assert (live_instances == 3);
   }
   hb_always_assert (live_instances == 0);
 
   {
-    result_t<resource_t> r = resource_t (3);
+    hb_result_t<resource_t> r = resource_t (3);
     hb_always_assert (live_instances == 1);
     r = Err (ALLOCATION);
     hb_always_assert (live_instances == 0);
@@ -209,34 +209,34 @@ static void test_resource_cleanup ()
 static void test_try_macro ()
 {
   // Test success path
-  result_t<int> r_success = try_caller (false, false);
+  hb_result_t<int> r_success = try_caller (false, false);
   hb_always_assert (r_success.is_ok ());
   hb_always_assert (r_success.unwrap () == 30);
 
   // Test first failure propagates
-  result_t<int> r_fail1 = try_caller (true, false);
+  hb_result_t<int> r_fail1 = try_caller (true, false);
   hb_always_assert (r_fail1.is_err ());
   hb_always_assert (r_fail1.error () == ALLOCATION);
 
   // Test second failure propagates
-  result_t<int> r_fail2 = try_caller (false, true);
+  hb_result_t<int> r_fail2 = try_caller (false, true);
   hb_always_assert (r_fail2.is_err ());
   hb_always_assert (r_fail2.error () == OVERFLOW);
 
   // Test TRY in void function
-  result_t<void> v_ok = try_caller_void (false);
+  hb_result_t<void> v_ok = try_caller_void (false);
   hb_always_assert (v_ok.is_ok ());
 
-  result_t<void> v_err = try_caller_void (true);
+  hb_result_t<void> v_err = try_caller_void (true);
   hb_always_assert (v_err.is_err ());
   hb_always_assert (v_err.error () == LIMIT_EXCEEDED);
 
   // Test TRY with different return type
-  result_t<float> f_ok = try_caller_type_change (false);
+  hb_result_t<float> f_ok = try_caller_type_change (false);
   hb_always_assert (f_ok.is_ok ());
   hb_always_assert (f_ok.unwrap () == 150.0f);
 
-  result_t<float> f_err = try_caller_type_change (true);
+  hb_result_t<float> f_err = try_caller_type_change (true);
   hb_always_assert (f_err.is_err ());
   hb_always_assert (f_err.error () == INVARIANT);
 }
