@@ -30,6 +30,15 @@
 // Track constructor and destructor counts to verify leak-freedom
 static int live_instances = 0;
 
+enum error_code_t {
+  ERR_A,
+  ERR_B,
+  ERR_C,
+};
+
+template <typename T>
+using result = hb_result_t<T, error_code_t>;
+
 struct resource_t
 {
   int id;
@@ -54,44 +63,44 @@ struct resource_t
   bool operator == (const resource_t& o) const { return id == o.id; }
 };
 
-static hb_result_t<int> returns_ok (int v)
+static result<int> returns_ok (int v)
 {
   return v;
 }
 
-static hb_result_t<int> returns_err (error_code_t e)
+static result<int> returns_err (error_code_t e)
 {
   return e;
 }
 
-static hb_result_t<int> try_callee (bool fail, int v, error_code_t e = ALLOCATION_FAILURE)
+static result<int> try_callee (bool fail, int v, error_code_t e = ERR_A)
 {
   if (fail) return e;
   return v;
 }
 
-static hb_result_t<int> try_caller (bool fail1, bool fail2)
+static result<int> try_caller (bool fail1, bool fail2)
 {
-  int index = TRY (try_callee (fail1, 10, ALLOCATION_FAILURE));
-  int index2 = TRY (try_callee (fail2, 20, OFFSET_OVERFLOW));
+  int index = TRY (try_callee (fail1, 10, ERR_A));
+  int index2 = TRY (try_callee (fail2, 20, ERR_B));
   return index + index2;
 }
 
-static hb_result_t<void> try_caller_void (bool fail)
+static result<void> try_caller_void (bool fail)
 {
-  TRY (try_callee (fail, 5, LIMIT_EXCEEDED));
+  TRY (try_callee (fail, 5, ERR_C));
   return Ok ();
 }
 
-static hb_result_t<float> try_caller_type_change (bool fail)
+static result<float> try_caller_type_change (bool fail)
 {
-  int index = TRY (try_callee (fail, 100, INVARIANT_VIOLATED));
+  int index = TRY (try_callee (fail, 100, ERR_A));
   return (float) index * 1.5f;
 }
 
 static void test_ok_basic ()
 {
-  hb_result_t<int> r = returns_ok (42);
+  result<int> r = returns_ok (42);
   hb_always_assert (r.is_ok ());
   hb_always_assert (!r.is_err ());
   hb_always_assert ((bool) r);
@@ -105,35 +114,35 @@ static void test_ok_basic ()
 
 static void test_err_basic ()
 {
-  hb_result_t<int> r = returns_err (ALLOCATION_FAILURE);
+  result<int> r = returns_err (ERR_A);
   hb_always_assert (!r.is_ok ());
   hb_always_assert (r.is_err ());
   hb_always_assert (!r);
-  hb_always_assert (r.error () == ALLOCATION_FAILURE);
+  hb_always_assert (r.error () == ERR_A);
   hb_always_assert (r.value_or (99) == 99);
-  hb_always_assert (r == Err (ALLOCATION_FAILURE));
-  hb_always_assert (Err (ALLOCATION_FAILURE) == r);
-  hb_always_assert (r == ALLOCATION_FAILURE);
-  hb_always_assert (ALLOCATION_FAILURE == r);
-  hb_always_assert (r != OFFSET_OVERFLOW);
+  hb_always_assert (r == Err (ERR_A));
+  hb_always_assert (Err (ERR_A) == r);
+  hb_always_assert (r == ERR_A);
+  hb_always_assert (ERR_A == r);
+  hb_always_assert (r != ERR_B);
 }
 
 static void test_explicit_ok_err ()
 {
   // TODO XXXX are these duplicates?
-  hb_result_t<unsigned> r1 = Ok (100u);
+  result<unsigned> r1 = Ok (100u);
   hb_always_assert (r1.is_ok ());
   hb_always_assert (r1.value () == 100u);
 
-  hb_result_t<unsigned> r2 = Err (LIMIT_EXCEEDED);
+  result<unsigned> r2 = Err (ERR_A);
   hb_always_assert (r2.is_err ());
-  hb_always_assert (r2.error () == LIMIT_EXCEEDED);
+  hb_always_assert (r2.error () == ERR_A);
 }
 
 static void test_pointers ()
 {
   int x = 123;
-  hb_result_t<int*> r = &x;
+  result<int*> r = &x;
   hb_always_assert (r.is_ok ());
   hb_always_assert (*r == &x);
   hb_always_assert (**r == 123);
@@ -143,24 +152,26 @@ static void test_pointers ()
 
 static void test_void ()
 {
-  hb_result_t<void> r1 = Ok ();
+  result<void> r1 = Ok ();
   hb_always_assert (r1.is_ok ());
   hb_always_assert (!r1.is_err ());
   hb_always_assert ((bool) r1);
   hb_always_assert (r1 == Ok ());
-  hb_always_assert (r1 != Err (OFFSET_OVERFLOW));
+  hb_always_assert (r1 != Err (ERR_A));
   hb_always_assert (Ok() == r1);
-  hb_always_assert (Err (OFFSET_OVERFLOW) != r1);
+  hb_always_assert (Err (ERR_A) != r1);
 
-  hb_result_t<void> r2 = Err (OFFSET_OVERFLOW);
+  result<void> r2 = Err (ERR_A);
   hb_always_assert (!r2.is_ok ());
   hb_always_assert (r2.is_err ());
   hb_always_assert (!r2);
-  hb_always_assert (r2.error () == OFFSET_OVERFLOW);
-  hb_always_assert (r2 == OFFSET_OVERFLOW);
-  hb_always_assert (r2 == Err (OFFSET_OVERFLOW));
+  hb_always_assert (r2.error () == ERR_A);
+  hb_always_assert (r2 == ERR_A);
+  hb_always_assert (r2 == Err (ERR_A));
+  hb_always_assert (r2 != Err (ERR_B));
   hb_always_assert (r2 != Ok ());
-  hb_always_assert (Err (OFFSET_OVERFLOW) == r2);
+  hb_always_assert (Err (ERR_A) == r2);
+  hb_always_assert (Err (ERR_B) != r2);
   hb_always_assert (Ok () != r2);
 }
 
@@ -169,26 +180,26 @@ static void test_resource_cleanup ()
   hb_always_assert (live_instances == 0);
 
   {
-    hb_result_t<resource_t> r = resource_t (1);
+    result<resource_t> r = resource_t (1);
     hb_always_assert (live_instances == 1);
     hb_always_assert (r.value ().id == 1);
   }
   hb_always_assert (live_instances == 0);
 
   {
-    hb_result_t<resource_t> r1 = resource_t (2);
+    result<resource_t> r1 = resource_t (2);
     hb_always_assert (live_instances == 1);
-    hb_result_t<resource_t> r2 = r1;
+    result<resource_t> r2 = r1;
     hb_always_assert (live_instances == 2);
-    hb_result_t<resource_t> r3 = std::move (r1);
+    result<resource_t> r3 = std::move (r1);
     hb_always_assert (live_instances == 3);
   }
   hb_always_assert (live_instances == 0);
 
   {
-    hb_result_t<resource_t> r = resource_t (3);
+    result<resource_t> r = resource_t (3);
     hb_always_assert (live_instances == 1);
-    r = Err (ALLOCATION_FAILURE);
+    r = Err (ERR_A);
     hb_always_assert (live_instances == 0);
     hb_always_assert (r.is_err ());
   }
@@ -198,36 +209,36 @@ static void test_resource_cleanup ()
 static void test_try_macro ()
 {
   // Test success path
-  hb_result_t<int> r_success = try_caller (false, false);
+  result<int> r_success = try_caller (false, false);
   hb_always_assert (r_success.is_ok ());
   hb_always_assert (r_success.value () == 30);
 
   // Test first failure propagates
-  hb_result_t<int> r_fail1 = try_caller (true, false);
+  result<int> r_fail1 = try_caller (true, false);
   hb_always_assert (r_fail1.is_err ());
-  hb_always_assert (r_fail1.error () == ALLOCATION_FAILURE);
+  hb_always_assert (r_fail1.error () == ERR_A);
 
   // Test second failure propagates
-  hb_result_t<int> r_fail2 = try_caller (false, true);
+  result<int> r_fail2 = try_caller (false, true);
   hb_always_assert (r_fail2.is_err ());
-  hb_always_assert (r_fail2.error () == OFFSET_OVERFLOW);
+  hb_always_assert (r_fail2.error () == ERR_B);
 
   // Test TRY in void function
-  hb_result_t<void> v_ok = try_caller_void (false);
+  result<void> v_ok = try_caller_void (false);
   hb_always_assert (v_ok.is_ok ());
 
-  hb_result_t<void> v_err = try_caller_void (true);
+  result<void> v_err = try_caller_void (true);
   hb_always_assert (v_err.is_err ());
-  hb_always_assert (v_err.error () == LIMIT_EXCEEDED);
+  hb_always_assert (v_err.error () == ERR_C);
 
   // Test TRY with different return type
-  hb_result_t<float> f_ok = try_caller_type_change (false);
+  result<float> f_ok = try_caller_type_change (false);
   hb_always_assert (f_ok.is_ok ());
   hb_always_assert (f_ok.value () == 150.0f);
 
-  hb_result_t<float> f_err = try_caller_type_change (true);
+  result<float> f_err = try_caller_type_change (true);
   hb_always_assert (f_err.is_err ());
-  hb_always_assert (f_err.error () == INVARIANT_VIOLATED);
+  hb_always_assert (f_err.error () == ERR_A);
 }
 
 // TODO XXXX test where T == E

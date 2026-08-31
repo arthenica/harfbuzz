@@ -28,31 +28,6 @@
 #define HB_RESULT_HH
 
 #include "hb.hh"
-#include "hb-meta.hh"
-
-#include <new>
-#include <utility>
-
-// Generic error code useful for describing common error scenarios that
-// occur in harfbuzz code.
-enum error_code_t {
-  ALLOCATION_FAILURE,
-  INVARIANT_VIOLATED,
-  OFFSET_OVERFLOW,
-  LIMIT_EXCEEDED,
-};
-
-static inline const char* to_string (error_code_t err)
-{
-  switch (err)
-  {
-    case ALLOCATION_FAILURE: return "error_code_t::ALLOCATION_FAILURE";
-    case INVARIANT_VIOLATED: return "error_code_t::INVARIANT_VIOLATED";
-    case OFFSET_OVERFLOW: return "error_code_t::OFFSET_OVERFLOW";
-    case LIMIT_EXCEEDED: return "error_code_t::LIMIT_EXCEEDED";
-    default: return "error_code_t::UNKNOWN";
-  }
-}
 
 // Helper structs for Ok(...) and Err(...), not used directly
 // by users of hb_result_t.
@@ -90,13 +65,13 @@ static inline constexpr hb_result_ok_t<void> Ok ()
   return hb_result_ok_t<void>{};
 }
 
-template <typename E = error_code_t>
+template <typename E>
 static inline constexpr hb_result_err_t<hb_decay<E>> Err (E&& e)
 {
   return hb_result_err_t<hb_decay<E>>{std::forward<E> (e)};
 }
 
-template <typename T, typename E = error_code_t>
+template <typename T, typename E>
 struct hb_result_t
 {
   private:
@@ -399,12 +374,12 @@ struct hb_result_t<void, E>
   E& error () & { assert (!is_ok_); return err_; }
   E error () && { assert (!is_ok_); return std::move (err_); }
 
-  bool operator == (const hb_result_t<void>& o) const
+  bool operator == (const hb_result_t<void, E>& o) const
   {
     return is_ok_ == o.is_ok_ && (is_ok_ || err_ == o.err_);
   }
 
-  bool operator != (const hb_result_t<void>& o) const
+  bool operator != (const hb_result_t<void, E>& o) const
   {
     return !(*this == o);
   }
