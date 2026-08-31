@@ -53,43 +53,43 @@ static inline const char* to_string (error_code_t err)
 }
 
 template <typename T>
-struct ok_t
+struct hb_result_ok_t
 {
   T value;
 };
 
 template <>
-struct ok_t<void> {};
+struct hb_result_ok_t<void> {};
 
 template <typename E>
-struct err_t
+struct hb_result_err_t
 {
   E error;
 
-  constexpr err_t (E e) : error (e) {}
+  constexpr hb_result_err_t (E e) : error (e) {}
 
   constexpr operator E () const { return error; }
   constexpr bool operator == (E other) const { return error == other; }
   constexpr bool operator != (E other) const { return error != other; }
-  constexpr bool operator == (const err_t& other) const { return error == other.error; }
-  constexpr bool operator != (const err_t& other) const { return error != other.error; }
+  constexpr bool operator == (const hb_result_err_t& other) const { return error == other.error; }
+  constexpr bool operator != (const hb_result_err_t& other) const { return error != other.error; }
 };
 
 template <typename T>
-static inline constexpr ok_t<hb_decay<T>> Ok (T&& v)
+static inline constexpr hb_result_ok_t<hb_decay<T>> Ok (T&& v)
 {
-  return ok_t<hb_decay<T>>{std::forward<T> (v)};
+  return hb_result_ok_t<hb_decay<T>>{std::forward<T> (v)};
 }
 
-static inline constexpr ok_t<void> Ok ()
+static inline constexpr hb_result_ok_t<void> Ok ()
 {
-  return ok_t<void>{};
+  return hb_result_ok_t<void>{};
 }
 
 template <typename E = error_code_t>
-static inline constexpr err_t<hb_decay<E>> Err (E&& e)
+static inline constexpr hb_result_err_t<hb_decay<E>> Err (E&& e)
 {
-  return err_t<hb_decay<E>>{std::forward<E> (e)};
+  return hb_result_err_t<hb_decay<E>>{std::forward<E> (e)};
 }
 
 template <typename T, typename E = error_code_t>
@@ -211,14 +211,14 @@ struct hb_result_t
   // Construct from Ok tag
   template <typename U = T,
             hb_enable_if ((std::is_constructible<T, U>::value))>
-  hb_result_t (ok_t<U>&& o) : is_ok_ (true)
+  hb_result_t (hb_result_ok_t<U>&& o) : is_ok_ (true)
   {
     new (std::addressof (val_)) T (std::move (o.value));
   }
 
   template <typename U = T,
             hb_enable_if ((std::is_constructible<T, const U&>::value))>
-  hb_result_t (const ok_t<U>& o) : is_ok_ (true)
+  hb_result_t (const hb_result_ok_t<U>& o) : is_ok_ (true)
   {
     new (std::addressof (val_)) T (o.value);
   }
@@ -226,7 +226,7 @@ struct hb_result_t
   // Construct from Err tag
   template <typename F = E,
             hb_enable_if ((std::is_constructible<E, F>::value))>
-  hb_result_t (err_t<F> e) : is_ok_ (false)
+  hb_result_t (hb_result_err_t<F> e) : is_ok_ (false)
   {
     new (std::addressof (err_)) E (std::move (e.error));
   }
@@ -243,8 +243,8 @@ struct hb_result_t
   template <typename U = T,
             hb_enable_if ((std::is_constructible<T, U>::value &&
                            !hb_is_same (hb_decay<U>, hb_result_t) &&
-                           !hb_is_same (hb_decay<U>, ok_t<T>) &&
-                           !hb_is_same (hb_decay<U>, err_t<E>) &&
+                           !hb_is_same (hb_decay<U>, hb_result_ok_t<T>) &&
+                           !hb_is_same (hb_decay<U>, hb_result_err_t<E>) &&
                            !hb_is_same (hb_decay<U>, E)))>
   hb_result_t (U&& v) : is_ok_ (true)
   {
@@ -311,8 +311,8 @@ struct hb_result_t
   E& error () & { return get_error (); }
   E error () && { return std::move (*this).get_error (); }
 
-  err_t<E> err () const & { return err_t<E> (get_error ()); }
-  err_t<E> err () && { return err_t<E> (std::move (*this).get_error ()); }
+  hb_result_err_t<E> err () const & { return hb_result_err_t<E> (get_error ()); }
+  hb_result_err_t<E> err () && { return hb_result_err_t<E> (std::move (*this).get_error ()); }
 
   T& operator * () & { return unwrap (); }
   const T& operator * () const & { return unwrap (); }
@@ -334,25 +334,25 @@ struct hb_result_t
   }
 
   template <typename U>
-  bool operator == (const ok_t<U>& o) const
+  bool operator == (const hb_result_ok_t<U>& o) const
   {
     return is_ok_ && val_ == o.value;
   }
 
   template <typename U>
-  bool operator != (const ok_t<U>& o) const
+  bool operator != (const hb_result_ok_t<U>& o) const
   {
     return !(*this == o);
   }
 
   template <typename F>
-  bool operator == (const err_t<F>& e) const
+  bool operator == (const hb_result_err_t<F>& e) const
   {
     return !is_ok_ && err_ == e.error;
   }
 
   template <typename F>
-  bool operator != (const err_t<F>& e) const
+  bool operator != (const hb_result_err_t<F>& e) const
   {
     return !(*this == e);
   }
@@ -389,7 +389,7 @@ struct hb_result_t<void, E>
   }
 
   hb_result_t () : is_ok_ (true) {}
-  hb_result_t (ok_t<void>) : is_ok_ (true) {}
+  hb_result_t (hb_result_ok_t<void>) : is_ok_ (true) {}
 
   hb_result_t (const hb_result_t& o) : is_ok_ (o.is_ok_)
   {
@@ -446,7 +446,7 @@ struct hb_result_t<void, E>
 
   template <typename F = E,
             hb_enable_if ((std::is_constructible<E, F>::value))>
-  hb_result_t (err_t<F> e) : is_ok_ (false)
+  hb_result_t (hb_result_err_t<F> e) : is_ok_ (false)
   {
     new (std::addressof (err_)) E (std::move (e.error));
   }
@@ -486,8 +486,8 @@ struct hb_result_t<void, E>
   E& error () & { return get_error (); }
   E error () && { return std::move (*this).get_error (); }
 
-  err_t<E> err () const & { return err_t<E> (get_error ()); }
-  err_t<E> err () && { return err_t<E> (std::move (*this).get_error ()); }
+  hb_result_err_t<E> err () const & { return hb_result_err_t<E> (get_error ()); }
+  hb_result_err_t<E> err () && { return hb_result_err_t<E> (std::move (*this).get_error ()); }
 
   bool operator == (const hb_result_t& o) const
   {
@@ -501,24 +501,24 @@ struct hb_result_t<void, E>
     return !(*this == o);
   }
 
-  bool operator == (const ok_t<void>&) const
+  bool operator == (const hb_result_ok_t<void>&) const
   {
     return is_ok_;
   }
 
-  bool operator != (const ok_t<void>&) const
+  bool operator != (const hb_result_ok_t<void>&) const
   {
     return !is_ok_;
   }
 
   template <typename F>
-  bool operator == (const err_t<F>& e) const
+  bool operator == (const hb_result_err_t<F>& e) const
   {
     return !is_ok_ && err_ == e.error;
   }
 
   template <typename F>
-  bool operator != (const err_t<F>& e) const
+  bool operator != (const hb_result_err_t<F>& e) const
   {
     return is_ok_ || err_ != e.error;
   }
@@ -535,22 +535,22 @@ struct hb_result_t<void, E>
 };
 
 template <typename U, typename T, typename E>
-static inline bool operator == (const ok_t<U>& o, const hb_result_t<T, E>& r)
+static inline bool operator == (const hb_result_ok_t<U>& o, const hb_result_t<T, E>& r)
 {
   return r == o;
 }
 template <typename U, typename T, typename E>
-static inline bool operator != (const ok_t<U>& o, const hb_result_t<T, E>& r)
+static inline bool operator != (const hb_result_ok_t<U>& o, const hb_result_t<T, E>& r)
 {
   return r != o;
 }
 template <typename F, typename T, typename E>
-static inline bool operator == (const err_t<F>& e, const hb_result_t<T, E>& r)
+static inline bool operator == (const hb_result_err_t<F>& e, const hb_result_t<T, E>& r)
 {
   return r == e;
 }
 template <typename F, typename T, typename E>
-static inline bool operator != (const err_t<F>& e, const hb_result_t<T, E>& r)
+static inline bool operator != (const hb_result_err_t<F>& e, const hb_result_t<T, E>& r)
 {
   return r != e;
 }
