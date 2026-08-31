@@ -33,22 +33,22 @@
 #include <new>
 #include <utility>
 
-enum GraphError {
+enum error_code_t {
   ALLOCATION,
   INVARIANT,
   OVERFLOW,
   LIMIT_EXCEEDED,
 };
 
-static inline const char* to_string (GraphError err)
+static inline const char* to_string (error_code_t err)
 {
   switch (err)
   {
-    case ALLOCATION: return "ALLOCATION";
-    case INVARIANT: return "INVARIANT";
-    case OVERFLOW: return "OVERFLOW";
-    case LIMIT_EXCEEDED: return "LIMIT_EXCEEDED";
-    default: return "UNKNOWN";
+    case ALLOCATION: return "error_code_t::ALLOCATION";
+    case INVARIANT: return "error_code_t::INVARIANT";
+    case OVERFLOW: return "error_code_t::OVERFLOW";
+    case LIMIT_EXCEEDED: return "error_code_t::LIMIT_EXCEEDED";
+    default: return "error_code_t::UNKNOWN";
   }
 }
 
@@ -86,13 +86,13 @@ static inline constexpr ok_t<void> Ok ()
   return ok_t<void>{};
 }
 
-template <typename E = GraphError>
+template <typename E = error_code_t>
 static inline constexpr err_t<hb_decay<E>> Err (E&& e)
 {
   return err_t<hb_decay<E>>{std::forward<E> (e)};
 }
 
-template <typename T, typename E = GraphError>
+template <typename T, typename E = error_code_t>
 struct result_t
 {
   private:
@@ -564,9 +564,6 @@ static inline bool operator != (E e, const result_t<T, E>& r)
 {
   return r != e;
 }
-
-template <typename T, typename E = GraphError>
-using Result = result_t<T, E>;
 
 #ifndef TRY
 #define TRY(...)                                          \
