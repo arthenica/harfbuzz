@@ -147,8 +147,10 @@ static void test_void ()
   hb_always_assert (r1.is_ok ());
   hb_always_assert (!r1.is_err ());
   hb_always_assert ((bool) r1);
-  r1.unwrap ();
   hb_always_assert (r1 == Ok ());
+  hb_always_assert (r1 != Err (OFFSET_OVERFLOW));
+  hb_always_assert (Ok() == r1);
+  hb_always_assert (Err (OFFSET_OVERFLOW) != r1);
 
   hb_result_t<void> r2 = Err (OFFSET_OVERFLOW);
   hb_always_assert (!r2.is_ok ());
@@ -157,6 +159,9 @@ static void test_void ()
   hb_always_assert (r2.error () == OFFSET_OVERFLOW);
   hb_always_assert (r2 == OFFSET_OVERFLOW);
   hb_always_assert (r2 == Err (OFFSET_OVERFLOW));
+  hb_always_assert (r2 != Ok ());
+  hb_always_assert (Err (OFFSET_OVERFLOW) == r2);
+  hb_always_assert (Ok () != r2);
 }
 
 static void test_resource_cleanup ()

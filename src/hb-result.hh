@@ -386,8 +386,6 @@ struct hb_result_t<void, E>
   }
 
   // Construct directly from error E
-  template <typename Dummy = void,
-            hb_enable_if ((hb_is_same (Dummy, void)))>
   hb_result_t (E e) : is_ok_ (false)
   {
     new (std::addressof (err_)) E (e);
@@ -397,68 +395,27 @@ struct hb_result_t<void, E>
   bool is_err () const { return !is_ok_; }
   explicit operator bool () const { return is_ok (); }
 
-  void unwrap () const { assert (is_ok_); }
-  void get_ok () const { unwrap (); }
+  const E& error () const & { assert (!is_ok_); return err_; }
+  E& error () & { assert (!is_ok_); return err_; }
+  E error () && { assert (!is_ok_); return std::move (err_); }
 
-  void expect (const char* msg) const
+  bool operator == (const hb_result_t<void>& o) const
   {
-    if (unlikely (!is_ok_))
-    {
-      fprintf (stderr, "%s\n", msg);
-      abort ();
-    }
+    return is_ok_ == o.is_ok_ && (is_ok_ || err_ == o.err_);
   }
 
-  const E& get_error () const & { assert (!is_ok_); return err_; }
-  E& get_error () & { assert (!is_ok_); return err_; }
-  E get_error () && { assert (!is_ok_); return std::move (err_); }
-
-  const E& error () const & { return get_error (); }
-  E& error () & { return get_error (); }
-  E error () && { return std::move (*this).get_error (); }
-
-  hb_result_err_t<E> err () const & { return hb_result_err_t<E> (get_error ()); }
-  hb_result_err_t<E> err () && { return hb_result_err_t<E> (std::move (*this).get_error ()); }
-
-  bool operator == (const hb_result_t& o) const
-  {
-    if (is_ok_ != o.is_ok_) return false;
-    if (!is_ok_) return err_ == o.err_;
-    return true;
-  }
-
-  bool operator != (const hb_result_t& o) const
+  bool operator != (const hb_result_t<void>& o) const
   {
     return !(*this == o);
   }
 
-  bool operator == (const hb_result_ok_t<void>&) const
-  {
-    return is_ok_;
-  }
-
-  bool operator != (const hb_result_ok_t<void>&) const
-  {
-    return !is_ok_;
-  }
-
-  template <typename F>
-  bool operator == (const hb_result_err_t<F>& e) const
-  {
-    return !is_ok_ && err_ == e.error;
-  }
-
-  template <typename F>
-  bool operator != (const hb_result_err_t<F>& e) const
-  {
-    return is_ok_ || err_ != e.error;
-  }
-
+  template <hb_enable_if ((!hb_is_same (E, hb_result_err_t<E>)))>
   bool operator == (E e) const
   {
     return !is_ok_ && err_ == e;
   }
 
+  template <hb_enable_if ((!hb_is_same (E, hb_result_err_t<E>)))>
   bool operator != (E e) const
   {
     return is_ok_ || err_ != e;
