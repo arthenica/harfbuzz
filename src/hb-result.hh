@@ -24,16 +24,14 @@
  * Google Author(s): Garret Rieger
  */
 
-#ifndef GRAPH_RESULT_HH
-#define GRAPH_RESULT_HH
+#ifndef HB_RESULT_HH
+#define HB_RESULT_HH
 
-#include "../hb.hh"
-#include "../hb-meta.hh"
+#include "hb.hh"
+#include "hb-meta.hh"
 
 #include <new>
 #include <utility>
-
-namespace graph {
 
 enum GraphError {
   ALLOCATION,
@@ -570,22 +568,13 @@ static inline bool operator != (E e, const result_t<T, E>& r)
 template <typename T, typename E = GraphError>
 using Result = result_t<T, E>;
 
-} // namespace graph
-
 #ifndef TRY
-#if defined(__GNUC__) || defined(__clang__)
-#define TRY(...) \
-  __extension__ ({ \
-    auto HB_PASTE (_hb_try_res_, __LINE__) = (__VA_ARGS__); \
-    if (unlikely (!HB_PASTE (_hb_try_res_, __LINE__).is_ok ())) \
-      return HB_PASTE (_hb_try_res_, __LINE__).err (); \
-    std::move (HB_PASTE (_hb_try_res_, __LINE__)).unwrap (); \
+#define TRY(...)                                          \
+  ({                                                      \
+    auto res = (__VA_ARGS__);                             \
+    if (!res.is_ok()) return Err(std::move(res).error()); \
+    std::move(*res);                                      \
   })
 #endif
-#endif
 
-#ifndef HB_TRY
-#define HB_TRY TRY
-#endif
-
-#endif /* GRAPH_RESULT_HH */
+#endif /* HB_RESULT_HH */

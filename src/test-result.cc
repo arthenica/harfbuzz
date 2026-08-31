@@ -24,9 +24,8 @@
  * Google Author(s): Garret Rieger
  */
 
-#include "result.hh"
+#include "hb-result.hh"
 
-using namespace graph;
 
 // Track constructor and destructor counts to verify leak-freedom
 static int live_instances = 0;

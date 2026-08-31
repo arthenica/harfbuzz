@@ -208,8 +208,8 @@ set (subset_project_sources
      ${PROJECT_SOURCE_DIR}/src/hb-subset.cc
      ${PROJECT_SOURCE_DIR}/src/hb-subset.hh
      ${PROJECT_SOURCE_DIR}/src/hb-repacker.hh
+     ${PROJECT_SOURCE_DIR}/src/hb-result.hh
      ${PROJECT_SOURCE_DIR}/src/graph/graph.hh
-     ${PROJECT_SOURCE_DIR}/src/graph/result.hh
      ${PROJECT_SOURCE_DIR}/src/graph/gsubgpos-graph.hh
      ${PROJECT_SOURCE_DIR}/src/graph/gsubgpos-context.hh
      ${PROJECT_SOURCE_DIR}/src/graph/gsubgpos-context.cc
@@ -638,7 +638,7 @@ if (HB_BUILD_SUBSET)
   if (MINGW)
     target_compile_options(harfbuzz-subset PRIVATE "-Wa,-mbig-obj")
   endif()
-  
+
   if (BUILD_SHARED_LIBS)
     if (BUILD_FRAMEWORK)
       set_target_properties(harfbuzz harfbuzz-subset PROPERTIES
@@ -1255,7 +1255,7 @@ if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-      FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+      FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR}
       COMPONENT runtime OPTIONAL
     )
     make_pkgconfig_pc_file("harfbuzz-gobject")
