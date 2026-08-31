@@ -95,10 +95,9 @@ static void test_ok_basic ()
   hb_always_assert (r.is_ok ());
   hb_always_assert (!r.is_err ());
   hb_always_assert ((bool) r);
-  hb_always_assert (r.unwrap () == 42);
-  hb_always_assert (r.get_ok () == 42);
+  hb_always_assert (r.value () == 42);
   hb_always_assert (*r == 42);
-  hb_always_assert (r.unwrap_or (0) == 42);
+  hb_always_assert (r.value_or (0) == 42);
   hb_always_assert (r == Ok (42));
   hb_always_assert (Ok (42) == r);
   hb_always_assert (r == 42);
@@ -112,7 +111,7 @@ static void test_err_basic ()
   hb_always_assert (!r);
   hb_always_assert (r.error () == ALLOCATION_FAILURE);
   hb_always_assert (r.get_error () == ALLOCATION_FAILURE);
-  hb_always_assert (r.unwrap_or (99) == 99);
+  hb_always_assert (r.value_or (99) == 99);
   hb_always_assert (r == Err (ALLOCATION_FAILURE));
   hb_always_assert (Err (ALLOCATION_FAILURE) == r);
   hb_always_assert (r == ALLOCATION_FAILURE);
@@ -122,21 +121,14 @@ static void test_err_basic ()
 
 static void test_explicit_ok_err ()
 {
+  // TODO XXXX are these duplicates?
   hb_result_t<unsigned> r1 = Ok (100u);
   hb_always_assert (r1.is_ok ());
-  hb_always_assert (r1.unwrap () == 100u);
+  hb_always_assert (r1.value () == 100u);
 
   hb_result_t<unsigned> r2 = Err (LIMIT_EXCEEDED);
   hb_always_assert (r2.is_err ());
   hb_always_assert (r2.error () == LIMIT_EXCEEDED);
-
-  hb_result_t<unsigned> r3 = hb_result_t<unsigned>::ok (200u);
-  hb_always_assert (r3.is_ok ());
-  hb_always_assert (r3.unwrap () == 200u);
-
-  hb_result_t<unsigned> r4 = hb_result_t<unsigned>::err (INVARIANT_VIOLATED);
-  hb_always_assert (r4.is_err ());
-  hb_always_assert (r4.error () == INVARIANT_VIOLATED);
 }
 
 static void test_pointers ()
@@ -166,13 +158,6 @@ static void test_void ()
   hb_always_assert (r2.error () == OFFSET_OVERFLOW);
   hb_always_assert (r2 == OFFSET_OVERFLOW);
   hb_always_assert (r2 == Err (OFFSET_OVERFLOW));
-
-  hb_result_t<void> r3 = hb_result_t<void>::ok ();
-  hb_always_assert (r3.is_ok ());
-
-  hb_result_t<void> r4 = hb_result_t<void>::err (ALLOCATION_FAILURE);
-  hb_always_assert (r4.is_err ());
-  hb_always_assert (r4.error () == ALLOCATION_FAILURE);
 }
 
 static void test_resource_cleanup ()
@@ -182,7 +167,7 @@ static void test_resource_cleanup ()
   {
     hb_result_t<resource_t> r = resource_t (1);
     hb_always_assert (live_instances == 1);
-    hb_always_assert (r.unwrap ().id == 1);
+    hb_always_assert (r.value ().id == 1);
   }
   hb_always_assert (live_instances == 0);
 
@@ -211,7 +196,7 @@ static void test_try_macro ()
   // Test success path
   hb_result_t<int> r_success = try_caller (false, false);
   hb_always_assert (r_success.is_ok ());
-  hb_always_assert (r_success.unwrap () == 30);
+  hb_always_assert (r_success.value () == 30);
 
   // Test first failure propagates
   hb_result_t<int> r_fail1 = try_caller (true, false);
@@ -234,12 +219,14 @@ static void test_try_macro ()
   // Test TRY with different return type
   hb_result_t<float> f_ok = try_caller_type_change (false);
   hb_always_assert (f_ok.is_ok ());
-  hb_always_assert (f_ok.unwrap () == 150.0f);
+  hb_always_assert (f_ok.value () == 150.0f);
 
   hb_result_t<float> f_err = try_caller_type_change (true);
   hb_always_assert (f_err.is_err ());
   hb_always_assert (f_err.error () == INVARIANT_VIOLATED);
 }
+
+// TODO XXXX test where T == E
 
 int main ()
 {

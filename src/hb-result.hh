@@ -54,6 +54,8 @@ static inline const char* to_string (error_code_t err)
   }
 }
 
+// Helper structs for Ok(...) and Err(...), not used directly
+// by callers.
 template <typename T>
 struct hb_result_ok_t
 {
@@ -105,8 +107,6 @@ struct hb_result_t
   };
   bool is_ok_;
 
-  template <typename, typename> friend struct hb_result_t;
-
   void destroy ()
   {
     if (is_ok_)
@@ -134,28 +134,6 @@ struct hb_result_t
   hb_result_t (hb_result_t&& o) noexcept (std::is_nothrow_move_constructible<T>::value &&
                                      std::is_nothrow_move_constructible<E>::value)
       : is_ok_ (o.is_ok_)
-  {
-    if (is_ok_)
-      new (std::addressof (val_)) T (std::move (o.val_));
-    else
-      new (std::addressof (err_)) E (std::move (o.err_));
-  }
-
-  template <typename U,
-            hb_enable_if ((std::is_constructible<T, const U&>::value &&
-                           !hb_is_same (T, U)))>
-  hb_result_t (const hb_result_t<U, E>& o) : is_ok_ (o.is_ok_)
-  {
-    if (is_ok_)
-      new (std::addressof (val_)) T (o.val_);
-    else
-      new (std::addressof (err_)) E (o.err_);
-  }
-
-  template <typename U,
-            hb_enable_if ((std::is_constructible<T, U>::value &&
-                           !hb_is_same (T, U)))>
-  hb_result_t (hb_result_t<U, E>&& o) : is_ok_ (o.is_ok_)
   {
     if (is_ok_)
       new (std::addressof (val_)) T (std::move (o.val_));
@@ -210,7 +188,7 @@ struct hb_result_t
     return *this;
   }
 
-  // Construct from Ok tag
+  // Construct from Ok(...) tag
   template <typename U = T,
             hb_enable_if ((std::is_constructible<T, U>::value))>
   hb_result_t (hb_result_ok_t<U>&& o) : is_ok_ (true)
@@ -225,7 +203,7 @@ struct hb_result_t
     new (std::addressof (val_)) T (o.value);
   }
 
-  // Construct from Err tag
+  // Construct from Err(...) tag
   template <typename F = E,
             hb_enable_if ((std::is_constructible<E, F>::value))>
   hb_result_t (hb_result_err_t<F> e) : is_ok_ (false)
@@ -234,47 +212,44 @@ struct hb_result_t
   }
 
   // Construct directly from error E (when T != E)
-  template <typename Dummy = void,
-            hb_enable_if ((!hb_is_same (T, E) && hb_is_same (Dummy, void)))>
+  template <hb_enable_if ((!hb_is_same (T, E)))>
   hb_result_t (E e) : is_ok_ (false)
   {
     new (std::addressof (err_)) E (e);
   }
 
-  // Converting constructor from value U
+  // Construct directly from value T (when T != E)
   template <typename U = T,
             hb_enable_if ((std::is_constructible<T, U>::value &&
-                           !hb_is_same (hb_decay<U>, hb_result_t) &&
-                           !hb_is_same (hb_decay<U>, hb_result_ok_t<T>) &&
-                           !hb_is_same (hb_decay<U>, hb_result_err_t<E>) &&
                            !hb_is_same (hb_decay<U>, E)))>
   hb_result_t (U&& v) : is_ok_ (true)
   {
     new (std::addressof (val_)) T (std::forward<U> (v));
   }
 
-  static hb_result_t ok (T v) { return hb_result_t (Ok (std::move (v))); }
-  static hb_result_t err (E e) { return hb_result_t (Err (std::move (e))); }
-
   bool is_ok () const { return is_ok_; }
   bool is_err () const { return !is_ok_; }
   explicit operator bool () const { return is_ok (); }
 
-  T& unwrap () & { assert (is_ok_); return val_; }
-  const T& unwrap () const & { assert (is_ok_); return val_; }
-  T unwrap () && { assert (is_ok_); return std::move (val_); }
+  T& value () & { assert (is_ok_); return val_; }
+  const T& value () const & { assert (is_ok_); return val_; }
+  T value () && { assert (is_ok_); return std::move (val_); }
 
-  T& get_ok () & { return unwrap (); }
-  const T& get_ok () const & { return unwrap (); }
-  T get_ok () && { return std::move (*this).unwrap (); }
+  T& operator * () & { return value (); }
+  const T& operator * () const & { return value (); }
+  T operator * () && { return std::move (*this).value (); }
+
+  T* operator -> () { return std::addressof (value ()); }
+  const T* operator -> () const { return std::addressof (value ()); }
 
   template <typename U>
-  T unwrap_or (U&& default_value) const
+  T value_or (U&& default_value) const
   {
     if (is_ok_) return val_;
     return std::forward<U> (default_value);
   }
 
+  // TODO XXX remove expect
   T& expect (const char* msg) &
   {
     if (unlikely (!is_ok_))
@@ -315,13 +290,6 @@ struct hb_result_t
 
   hb_result_err_t<E> err () const & { return hb_result_err_t<E> (get_error ()); }
   hb_result_err_t<E> err () && { return hb_result_err_t<E> (std::move (*this).get_error ()); }
-
-  T& operator * () & { return unwrap (); }
-  const T& operator * () const & { return unwrap (); }
-  T operator * () && { return std::move (*this).unwrap (); }
-
-  T* operator -> () { return std::addressof (unwrap ()); }
-  const T* operator -> () const { return std::addressof (unwrap ()); }
 
   bool operator == (const hb_result_t& o) const
   {
@@ -460,9 +428,6 @@ struct hb_result_t<void, E>
   {
     new (std::addressof (err_)) E (e);
   }
-
-  static hb_result_t ok () { return hb_result_t (); }
-  static hb_result_t err (E e) { return hb_result_t (Err (std::move (e))); }
 
   bool is_ok () const { return is_ok_; }
   bool is_err () const { return !is_ok_; }
