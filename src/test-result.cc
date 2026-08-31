@@ -64,7 +64,7 @@ static hb_result_t<int> returns_err (error_code_t e)
   return e;
 }
 
-static hb_result_t<int> try_callee (bool fail, int v, error_code_t e = ALLOCATION)
+static hb_result_t<int> try_callee (bool fail, int v, error_code_t e = ALLOCATION_FAILURE)
 {
   if (fail) return e;
   return v;
@@ -72,8 +72,8 @@ static hb_result_t<int> try_callee (bool fail, int v, error_code_t e = ALLOCATIO
 
 static hb_result_t<int> try_caller (bool fail1, bool fail2)
 {
-  int index = TRY (try_callee (fail1, 10, ALLOCATION));
-  int index2 = TRY (try_callee (fail2, 20, OVERFLOW));
+  int index = TRY (try_callee (fail1, 10, ALLOCATION_FAILURE));
+  int index2 = TRY (try_callee (fail2, 20, OFFSET_OVERFLOW));
   return index + index2;
 }
 
@@ -85,7 +85,7 @@ static hb_result_t<void> try_caller_void (bool fail)
 
 static hb_result_t<float> try_caller_type_change (bool fail)
 {
-  int index = TRY (try_callee (fail, 100, INVARIANT));
+  int index = TRY (try_callee (fail, 100, INVARIANT_VIOLATED));
   return (float) index * 1.5f;
 }
 
@@ -106,18 +106,18 @@ static void test_ok_basic ()
 
 static void test_err_basic ()
 {
-  hb_result_t<int> r = returns_err (ALLOCATION);
+  hb_result_t<int> r = returns_err (ALLOCATION_FAILURE);
   hb_always_assert (!r.is_ok ());
   hb_always_assert (r.is_err ());
   hb_always_assert (!r);
-  hb_always_assert (r.error () == ALLOCATION);
-  hb_always_assert (r.get_error () == ALLOCATION);
+  hb_always_assert (r.error () == ALLOCATION_FAILURE);
+  hb_always_assert (r.get_error () == ALLOCATION_FAILURE);
   hb_always_assert (r.unwrap_or (99) == 99);
-  hb_always_assert (r == Err (ALLOCATION));
-  hb_always_assert (Err (ALLOCATION) == r);
-  hb_always_assert (r == ALLOCATION);
-  hb_always_assert (ALLOCATION == r);
-  hb_always_assert (r != OVERFLOW);
+  hb_always_assert (r == Err (ALLOCATION_FAILURE));
+  hb_always_assert (Err (ALLOCATION_FAILURE) == r);
+  hb_always_assert (r == ALLOCATION_FAILURE);
+  hb_always_assert (ALLOCATION_FAILURE == r);
+  hb_always_assert (r != OFFSET_OVERFLOW);
 }
 
 static void test_explicit_ok_err ()
@@ -134,9 +134,9 @@ static void test_explicit_ok_err ()
   hb_always_assert (r3.is_ok ());
   hb_always_assert (r3.unwrap () == 200u);
 
-  hb_result_t<unsigned> r4 = hb_result_t<unsigned>::err (INVARIANT);
+  hb_result_t<unsigned> r4 = hb_result_t<unsigned>::err (INVARIANT_VIOLATED);
   hb_always_assert (r4.is_err ());
-  hb_always_assert (r4.error () == INVARIANT);
+  hb_always_assert (r4.error () == INVARIANT_VIOLATED);
 }
 
 static void test_pointers ()
@@ -159,20 +159,20 @@ static void test_void ()
   r1.unwrap ();
   hb_always_assert (r1 == Ok ());
 
-  hb_result_t<void> r2 = Err (OVERFLOW);
+  hb_result_t<void> r2 = Err (OFFSET_OVERFLOW);
   hb_always_assert (!r2.is_ok ());
   hb_always_assert (r2.is_err ());
   hb_always_assert (!r2);
-  hb_always_assert (r2.error () == OVERFLOW);
-  hb_always_assert (r2 == OVERFLOW);
-  hb_always_assert (r2 == Err (OVERFLOW));
+  hb_always_assert (r2.error () == OFFSET_OVERFLOW);
+  hb_always_assert (r2 == OFFSET_OVERFLOW);
+  hb_always_assert (r2 == Err (OFFSET_OVERFLOW));
 
   hb_result_t<void> r3 = hb_result_t<void>::ok ();
   hb_always_assert (r3.is_ok ());
 
-  hb_result_t<void> r4 = hb_result_t<void>::err (ALLOCATION);
+  hb_result_t<void> r4 = hb_result_t<void>::err (ALLOCATION_FAILURE);
   hb_always_assert (r4.is_err ());
-  hb_always_assert (r4.error () == ALLOCATION);
+  hb_always_assert (r4.error () == ALLOCATION_FAILURE);
 }
 
 static void test_resource_cleanup ()
@@ -199,7 +199,7 @@ static void test_resource_cleanup ()
   {
     hb_result_t<resource_t> r = resource_t (3);
     hb_always_assert (live_instances == 1);
-    r = Err (ALLOCATION);
+    r = Err (ALLOCATION_FAILURE);
     hb_always_assert (live_instances == 0);
     hb_always_assert (r.is_err ());
   }
@@ -216,12 +216,12 @@ static void test_try_macro ()
   // Test first failure propagates
   hb_result_t<int> r_fail1 = try_caller (true, false);
   hb_always_assert (r_fail1.is_err ());
-  hb_always_assert (r_fail1.error () == ALLOCATION);
+  hb_always_assert (r_fail1.error () == ALLOCATION_FAILURE);
 
   // Test second failure propagates
   hb_result_t<int> r_fail2 = try_caller (false, true);
   hb_always_assert (r_fail2.is_err ());
-  hb_always_assert (r_fail2.error () == OVERFLOW);
+  hb_always_assert (r_fail2.error () == OFFSET_OVERFLOW);
 
   // Test TRY in void function
   hb_result_t<void> v_ok = try_caller_void (false);
@@ -238,7 +238,7 @@ static void test_try_macro ()
 
   hb_result_t<float> f_err = try_caller_type_change (true);
   hb_always_assert (f_err.is_err ());
-  hb_always_assert (f_err.error () == INVARIANT);
+  hb_always_assert (f_err.error () == INVARIANT_VIOLATED);
 }
 
 int main ()

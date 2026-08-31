@@ -33,10 +33,12 @@
 #include <new>
 #include <utility>
 
+// Generic error code useful for describing common error scenarios that
+// occur in harfbuzz code.
 enum error_code_t {
-  ALLOCATION,
-  INVARIANT,
-  OVERFLOW,
+  ALLOCATION_FAILURE,
+  INVARIANT_VIOLATED,
+  OFFSET_OVERFLOW,
   LIMIT_EXCEEDED,
 };
 
@@ -44,9 +46,9 @@ static inline const char* to_string (error_code_t err)
 {
   switch (err)
   {
-    case ALLOCATION: return "error_code_t::ALLOCATION";
-    case INVARIANT: return "error_code_t::INVARIANT";
-    case OVERFLOW: return "error_code_t::OVERFLOW";
+    case ALLOCATION_FAILURE: return "error_code_t::ALLOCATION_FAILURE";
+    case INVARIANT_VIOLATED: return "error_code_t::INVARIANT_VIOLATED";
+    case OFFSET_OVERFLOW: return "error_code_t::OFFSET_OVERFLOW";
     case LIMIT_EXCEEDED: return "error_code_t::LIMIT_EXCEEDED";
     default: return "error_code_t::UNKNOWN";
   }
