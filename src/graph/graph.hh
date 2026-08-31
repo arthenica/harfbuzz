@@ -31,8 +31,6 @@
 #ifndef GRAPH_GRAPH_HH
 #define GRAPH_GRAPH_HH
 
-#include "result.hh"
-
 #define HB_GRAPH_INVALID ((unsigned) -1)
 
 namespace graph {

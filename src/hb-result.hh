@@ -55,7 +55,7 @@ static inline const char* to_string (error_code_t err)
 }
 
 // Helper structs for Ok(...) and Err(...), not used directly
-// by callers.
+// by users of hb_result_t.
 template <typename T>
 struct hb_result_ok_t
 {
