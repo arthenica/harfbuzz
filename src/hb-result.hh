@@ -249,47 +249,9 @@ struct hb_result_t
     return std::forward<U> (default_value);
   }
 
-  // TODO XXX remove expect
-  T& expect (const char* msg) &
-  {
-    if (unlikely (!is_ok_))
-    {
-      fprintf (stderr, "%s\n", msg);
-      abort ();
-    }
-    return val_;
-  }
-
-  const T& expect (const char* msg) const &
-  {
-    if (unlikely (!is_ok_))
-    {
-      fprintf (stderr, "%s\n", msg);
-      abort ();
-    }
-    return val_;
-  }
-
-  T expect (const char* msg) &&
-  {
-    if (unlikely (!is_ok_))
-    {
-      fprintf (stderr, "%s\n", msg);
-      abort ();
-    }
-    return std::move (val_);
-  }
-
-  const E& get_error () const & { assert (!is_ok_); return err_; }
-  E& get_error () & { assert (!is_ok_); return err_; }
-  E get_error () && { assert (!is_ok_); return std::move (err_); }
-
-  const E& error () const & { return get_error (); }
-  E& error () & { return get_error (); }
-  E error () && { return std::move (*this).get_error (); }
-
-  hb_result_err_t<E> err () const & { return hb_result_err_t<E> (get_error ()); }
-  hb_result_err_t<E> err () && { return hb_result_err_t<E> (std::move (*this).get_error ()); }
+  const E& error () const & { assert (!is_ok_); return err_; }
+  E& error () & { assert (!is_ok_); return err_; }
+  E error () && { assert (!is_ok_); return std::move (err_); }
 
   bool operator == (const hb_result_t& o) const
   {
@@ -327,11 +289,13 @@ struct hb_result_t
     return !(*this == e);
   }
 
+  template <hb_enable_if ((!hb_is_same (T, E)))>
   bool operator == (E e) const
   {
     return !is_ok_ && err_ == e;
   }
 
+  template <hb_enable_if ((!hb_is_same (T, E)))>
   bool operator != (E e) const
   {
     return is_ok_ || err_ != e;

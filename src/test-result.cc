@@ -110,7 +110,6 @@ static void test_err_basic ()
   hb_always_assert (r.is_err ());
   hb_always_assert (!r);
   hb_always_assert (r.error () == ALLOCATION_FAILURE);
-  hb_always_assert (r.get_error () == ALLOCATION_FAILURE);
   hb_always_assert (r.value_or (99) == 99);
   hb_always_assert (r == Err (ALLOCATION_FAILURE));
   hb_always_assert (Err (ALLOCATION_FAILURE) == r);
