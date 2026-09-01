@@ -47,7 +47,6 @@ struct hb_result_err_t
 
   constexpr hb_result_err_t (E e) : error (e) {}
 
-  constexpr operator E () const { return error; }
   constexpr bool operator == (E other) const { return error == other; }
   constexpr bool operator != (E other) const { return error != other; }
   constexpr bool operator == (const hb_result_err_t& other) const { return error == other.error; }
@@ -382,6 +381,10 @@ struct hb_result_t<void, E>
   E& error () & { assert (!is_ok_); return err_; }
   E error () && { assert (!is_ok_); return std::move (err_); }
 
+  void operator * () & { return; }
+  void operator * () const & { return; }
+  void operator * () && { return; }
+
   bool operator == (const hb_result_t<void, E>& o) const
   {
     return is_ok_ == o.is_ok_ && (is_ok_ || err_ == o.err_);
@@ -441,7 +444,7 @@ static inline bool operator != (E e, const hb_result_t<T, E>& r)
   ({                                                      \
     auto res = (__VA_ARGS__);                             \
     if (!res.is_ok()) return Err(std::move(res).error()); \
-    std::move(*res);                                      \
+    *std::move(res);                                      \
   })
 #endif
 

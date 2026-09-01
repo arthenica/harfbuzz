@@ -79,6 +79,12 @@ static result<int> try_callee (bool fail, int v, error_code_t e = ERR_A)
   return v;
 }
 
+static result<void> try_callee_void (bool fail,  error_code_t e)
+{
+  if (fail) return e;
+  return Ok();
+}
+
 static result<int> try_caller (bool fail1, bool fail2)
 {
   int index = TRY (try_callee (fail1, 10, ERR_A));
@@ -88,7 +94,7 @@ static result<int> try_caller (bool fail1, bool fail2)
 
 static result<void> try_caller_void (bool fail)
 {
-  TRY (try_callee (fail, 5, ERR_C));
+  TRY (try_callee_void (fail, ERR_C));
   return Ok ();
 }
 
