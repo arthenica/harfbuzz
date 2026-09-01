@@ -186,17 +186,21 @@ struct hb_result_t
     new (std::addressof (err_)) E (std::move (e.error));
   }
 
-  // Construct directly from error E (when T != E)
-  template <hb_enable_if ((!hb_is_same (T, E)))>
-  hb_result_t (E e) : is_ok_ (false)
+  // Construct directly from error E (when T and E are not convertible into each other)
+  template <typename F = E,
+            hb_enable_if ((hb_is_same (F, E) &&
+                           !(hb_is_convertible (T, E) && hb_is_convertible (E, T))))>
+  hb_result_t (F e) : is_ok_ (false)
   {
-    new (std::addressof (err_)) E (e);
+    new (std::addressof (err_)) E (std::move (e));
   }
 
-  // Construct directly from value T (when T != E)
+  // Construct directly from value T (when T and E are not convertible into each other)
   template <typename U = T,
             hb_enable_if ((std::is_constructible<T, U>::value &&
-                           !hb_is_same (hb_decay<U>, E)))>
+                           !hb_is_same (hb_decay<U>, E) &&
+                           !hb_is_same (hb_decay<U>, hb_result_t) &&
+                           !(hb_is_convertible (T, E) && hb_is_convertible (E, T))))>
   hb_result_t (U&& v) : is_ok_ (true)
   {
     new (std::addressof (val_)) T (std::forward<U> (v));
@@ -264,14 +268,18 @@ struct hb_result_t
     return !(*this == e);
   }
 
-  template <hb_enable_if ((!hb_is_same (T, E)))>
-  bool operator == (E e) const
+  template <typename F = E,
+            hb_enable_if ((hb_is_same (F, E) &&
+                           !(hb_is_convertible (T, E) && hb_is_convertible (E, T))))>
+  bool operator == (F e) const
   {
     return !is_ok_ && err_ == e;
   }
 
-  template <hb_enable_if ((!hb_is_same (T, E)))>
-  bool operator != (E e) const
+  template <typename F = E,
+            hb_enable_if ((hb_is_same (F, E) &&
+                           !(hb_is_convertible (T, E) && hb_is_convertible (E, T))))>
+  bool operator != (F e) const
   {
     return is_ok_ || err_ != e;
   }

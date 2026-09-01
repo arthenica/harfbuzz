@@ -129,7 +129,6 @@ static void test_err_basic ()
 
 static void test_explicit_ok_err ()
 {
-  // TODO XXXX are these duplicates?
   result<unsigned> r1 = Ok (100u);
   hb_always_assert (r1.is_ok ());
   hb_always_assert (r1.value () == 100u);
@@ -241,7 +240,59 @@ static void test_try_macro ()
   hb_always_assert (f_err.error () == ERR_A);
 }
 
-// TODO XXXX test where T == E
+static void test_same_or_convertible_types ()
+{
+  // Types convertible into each other cannot be directly constructed without Ok/Err
+  static_assert (!std::is_constructible<hb_result_t<int64_t, int32_t>, int>::value, "");
+  static_assert (!std::is_constructible<hb_result_t<int64_t, int32_t>, int64_t>::value, "");
+  static_assert (!std::is_constructible<hb_result_t<int64_t, int32_t>, int32_t>::value, "");
+  static_assert (std::is_constructible<hb_result_t<int64_t, int32_t>, hb_result_ok_t<int>>::value, "");
+  static_assert (std::is_constructible<hb_result_t<int64_t, int32_t>, hb_result_err_t<int>>::value, "");
+
+  // Same types cannot be directly constructed without Ok/Err
+  static_assert (!std::is_constructible<hb_result_t<int, int>, int>::value, "");
+  static_assert (std::is_constructible<hb_result_t<int, int>, hb_result_ok_t<int>>::value, "");
+  static_assert (std::is_constructible<hb_result_t<int, int>, hb_result_err_t<int>>::value, "");
+
+  // Types not convertible into each other can be directly constructed
+  static_assert (std::is_constructible<hb_result_t<int, error_code_t>, int>::value, "");
+  static_assert (std::is_constructible<hb_result_t<int, error_code_t>, error_code_t>::value, "");
+
+  hb_result_t<int64_t, int32_t> r_ok = Ok (1);
+  hb_always_assert (r_ok.is_ok ());
+  hb_always_assert (r_ok.value () == 1);
+
+  hb_result_t<int64_t, int32_t> r_err = Err (2);
+  hb_always_assert (r_err.is_err ());
+  hb_always_assert (r_err.error () == 2);
+
+  hb_result_t<int, int> same_ok = Ok (42);
+  hb_always_assert (same_ok.is_ok ());
+  hb_always_assert (same_ok.value () == 42);
+
+  hb_result_t<int, int> same_err = Err (99);
+  hb_always_assert (same_err.is_err ());
+  hb_always_assert (same_err.error () == 99);
+
+  // Check that enum, int type works as egpected
+  {
+    hb_result_t<int, error_code_t> r = 1;
+    hb_always_assert(r == Ok(1));
+    hb_always_assert(r == 1);
+    r = ERR_A;
+    hb_always_assert(r == Err(ERR_A));
+    hb_always_assert(r == ERR_A);
+  }
+
+  {
+    hb_result_t<error_code_t, int> r = 1;
+    hb_always_assert(r == Err(1));
+    hb_always_assert(r == 1);
+    r = ERR_A;
+    hb_always_assert(r == Ok(ERR_A));
+    hb_always_assert(r == ERR_A);
+  }
+}
 
 int main ()
 {
@@ -252,6 +303,7 @@ int main ()
   test_void ();
   test_resource_cleanup ();
   test_try_macro ();
+  test_same_or_convertible_types ();
 
   return 0;
 }
